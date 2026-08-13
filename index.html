@@ -1,0 +1,278 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AlignDisplay — 메뉴 막대에서 바로 디스플레이 정렬</title>
+<meta name="description" content="시스템 설정을 열지 않고 메뉴 막대에서 바로 외장 디스플레이 배치를 바꾸는 macOS 유틸리티.">
+<link rel="icon" href="assets/icon.png">
+<meta property="og:title" content="AlignDisplay">
+<meta property="og:description" content="메뉴 막대에서 바로 외장 디스플레이를 끌어 배치하는 macOS 유틸리티">
+<meta property="og:image" content="assets/icon-512.png">
+<meta property="og:type" content="website">
+<style>
+  :root {
+    --bg: #ffffff;
+    --bg-soft: #f5f5f7;
+    --text: #1d1d1f;
+    --text-dim: #6e6e73;
+    --line: #d2d2d7;
+    --accent: #0071e3;
+    --card: #ffffff;
+    --shadow: 0 4px 24px rgba(0,0,0,.08);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #000000;
+      --bg-soft: #1c1c1e;
+      --text: #f5f5f7;
+      --text-dim: #a1a1a6;
+      --line: #38383a;
+      --accent: #2997ff;
+      --card: #1c1c1e;
+      --shadow: 0 4px 24px rgba(0,0,0,.5);
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #000000;
+    --bg-soft: #1c1c1e;
+    --text: #f5f5f7;
+    --text-dim: #a1a1a6;
+    --line: #38383a;
+    --accent: #2997ff;
+    --card: #1c1c1e;
+    --shadow: 0 4px 24px rgba(0,0,0,.5);
+  }
+
+  * { box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, "SF Pro KR", "Apple SD Gothic Neo",
+                 "Pretendard", "Noto Sans KR", Roboto, sans-serif;
+    line-height: 1.65;
+    -webkit-font-smoothing: antialiased;
+  }
+  .wrap { max-width: 860px; margin: 0 auto; padding: 0 24px; }
+  section { padding: 56px 0; border-top: 1px solid var(--line); }
+  section:first-of-type { border-top: none; }
+  h1, h2, h3 { line-height: 1.3; letter-spacing: -0.02em; }
+  h2 { font-size: 1.6rem; margin: 0 0 20px; }
+  h3 { font-size: 1.05rem; margin: 0 0 6px; }
+  p { margin: 0 0 14px; }
+  a { color: var(--accent); }
+  img { max-width: 100%; height: auto; }
+
+  /* 히어로 */
+  header {
+    text-align: center;
+    padding: 72px 0 56px;
+    background: var(--bg-soft);
+  }
+  header img.appicon {
+    width: 128px; height: 128px;
+    border-radius: 28px;
+    box-shadow: var(--shadow);
+  }
+  header h1 {
+    font-size: clamp(2.2rem, 6vw, 3.2rem);
+    margin: 24px 0 8px;
+  }
+  header .tagline {
+    font-size: clamp(1.05rem, 2.6vw, 1.3rem);
+    color: var(--text-dim);
+    margin: 0 auto 24px;
+    max-width: 30ch;
+  }
+  .meta {
+    display: flex; flex-wrap: wrap; gap: 8px;
+    justify-content: center;
+    font-size: .85rem; color: var(--text-dim);
+  }
+  .meta span {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    padding: 4px 14px;
+  }
+
+  /* 기능 */
+  .features { display: grid; gap: 22px; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); }
+  .feature {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    padding: 20px;
+  }
+  .feature p { margin: 0; color: var(--text-dim); font-size: .95rem; }
+
+  /* 스크린샷 */
+  .shots {
+    display: flex; flex-wrap: wrap; gap: 28px;
+    align-items: flex-start; justify-content: center;
+  }
+  .shots figure { margin: 0; flex: 1 1 260px; max-width: 340px; text-align: center; }
+  .shots img { border-radius: 14px; box-shadow: var(--shadow); border: 1px solid var(--line); }
+  .shots figcaption { margin-top: 10px; font-size: .85rem; color: var(--text-dim); }
+
+  /* 업데이트 */
+  .release { border-left: 2px solid var(--line); padding: 0 0 4px 20px; margin-bottom: 28px; }
+  .release h3 { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; }
+  .release .date { font-size: .85rem; color: var(--text-dim); font-weight: 400; }
+  .release ul { margin: 8px 0 0; padding-left: 18px; color: var(--text-dim); font-size: .95rem; }
+  .release li { margin-bottom: 4px; }
+
+  /* 문의 */
+  .contact a.mail {
+    display: inline-block;
+    background: var(--accent);
+    color: #fff;
+    text-decoration: none;
+    font-weight: 500;
+    padding: 12px 28px;
+    border-radius: 999px;
+  }
+  dl.faq { margin: 24px 0 0; }
+  dl.faq dt { font-weight: 600; margin-top: 18px; }
+  dl.faq dd { margin: 4px 0 0; color: var(--text-dim); }
+
+  footer {
+    border-top: 1px solid var(--line);
+    padding: 32px 0 48px;
+    text-align: center;
+    color: var(--text-dim);
+    font-size: .85rem;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap">
+    <img class="appicon" src="assets/icon.png" alt="AlignDisplay 앱 아이콘">
+    <h1>AlignDisplay</h1>
+    <p class="tagline">메뉴 막대에서 바로 외장 디스플레이를 끌어 배치합니다.</p>
+    <div class="meta">
+      <span>macOS 13.5 이상</span>
+      <span>Apple Silicon &amp; Intel</span>
+      <span>버전 1.1</span>
+    </div>
+  </div>
+</header>
+
+<div class="wrap">
+
+<section>
+  <h2>시스템 설정까지 갈 필요 없이</h2>
+  <p>
+    노트북을 모니터에 연결할 때마다 화면 배치가 어긋나 있으면, 시스템 설정 → 디스플레이 → 정렬까지
+    네 번을 들어가야 했습니다. AlignDisplay는 그 화면을 메뉴 막대 안으로 옮겨 놓습니다.
+    아이콘을 한 번 누르고, 디스플레이를 원하는 자리로 끌면 끝입니다.
+  </p>
+  <div class="features">
+    <div class="feature">
+      <h3>끌어서 배치</h3>
+      <p>디스플레이를 끌어 놓으면 이웃 화면 모서리에 자동으로 달라붙습니다. 겹치거나 떨어진 배치가 만들어지지 않습니다.</p>
+    </div>
+    <div class="feature">
+      <h3>빠른 정렬</h3>
+      <p>위 · 아래 · 왼쪽 · 오른쪽 버튼으로 외장 디스플레이를 한 번에 제자리에 놓습니다.</p>
+    </div>
+    <div class="feature">
+      <h3>주 디스플레이 지정</h3>
+      <p>배치 화면에서 마우스 오른쪽 버튼을 누르면 메뉴 막대가 있는 주 디스플레이를 바꿀 수 있습니다.</p>
+    </div>
+    <div class="feature">
+      <h3>연결하면 바로</h3>
+      <p>새 디스플레이를 연결하면 배치 창이 알아서 떠서, 곧바로 정리하고 닫으면 됩니다.</p>
+    </div>
+    <div class="feature">
+      <h3>로그인 시 실행</h3>
+      <p>체크 한 번으로 로그인 항목에 등록됩니다. Dock을 차지하지 않고 메뉴 막대에만 머무릅니다.</p>
+    </div>
+    <div class="feature">
+      <h3>권한 요구 없음</h3>
+      <p>macOS가 공개한 디스플레이 설정 기능만 사용합니다. 접근성이나 화면 기록 권한을 요구하지 않습니다.</p>
+    </div>
+  </div>
+</section>
+
+<section>
+  <h2>스크린샷</h2>
+  <div class="shots">
+    <figure>
+      <img src="assets/screenshot-popover.png" alt="메뉴 막대 팝오버 전체 화면. 위쪽에 디스플레이 배치 캔버스, 아래에 빠른 정렬 버튼과 설정이 있다.">
+      <figcaption>메뉴 막대에서 열리는 배치 화면</figcaption>
+    </figure>
+    <figure>
+      <img src="assets/screenshot-arrangement.png" alt="두 디스플레이가 위아래로 맞닿아 배치된 캔버스 확대 화면.">
+      <figcaption>끌어서 배치하면 모서리에 자동으로 붙습니다</figcaption>
+    </figure>
+  </div>
+</section>
+
+<section>
+  <h2>업데이트 정보</h2>
+
+  <div class="release">
+    <h3>버전 1.1 <span class="date">2026년 8월 13일</span></h3>
+    <ul>
+      <li>메뉴 막대 안에서 디스플레이를 끌어 배치하는 기능이 추가되었습니다.</li>
+      <li>배치를 놓으면 이웃 화면 모서리에 자동으로 정렬됩니다.</li>
+      <li>마우스 오른쪽 버튼으로 주 디스플레이를 지정할 수 있습니다.</li>
+      <li>디스플레이 연결 시 배치 창이 자동으로 열립니다. 설정에서 끌 수 있습니다.</li>
+      <li>팝오버가 화면 위쪽으로 넘쳐 잘려 보이던 문제를 해결했습니다.</li>
+    </ul>
+  </div>
+
+  <div class="release">
+    <h3>버전 1.0</h3>
+    <ul>
+      <li>메뉴 막대 아이콘과 위 · 아래 · 왼쪽 · 오른쪽 빠른 정렬.</li>
+      <li>디스플레이 연결 · 해제 감지, 로그인 시 실행.</li>
+    </ul>
+  </div>
+</section>
+
+<section>
+  <h2>개인정보 처리방침</h2>
+  <p>
+    AlignDisplay는 <strong>어떤 개인정보도 수집하지 않습니다.</strong> 사용 기록을 모으거나 외부로
+    전송하지 않으며, 네트워크에 접속하지 않습니다. 앱이 저장하는 정보는 로그인 시 실행 여부와
+    자동 열기 여부 같은 설정값뿐이며, 이는 사용자의 Mac 안에만 저장됩니다.
+  </p>
+  <p>
+    디스플레이 이름과 해상도는 배치를 표시하기 위해 macOS로부터 읽어오지만, 화면에 보여주는 용도로만
+    쓰이고 저장하거나 전송하지 않습니다.
+  </p>
+</section>
+
+<section class="contact">
+  <h2>문의</h2>
+  <p>버그 제보, 기능 제안, 그 밖의 문의는 이메일로 보내주세요. 확인하는 대로 답장드립니다.</p>
+  <p><a class="mail" href="mailto:dltkdi173@gmail.com">dltkdi173@gmail.com</a></p>
+
+  <dl class="faq">
+    <dt>디스플레이가 목록에 보이지 않아요.</dt>
+    <dd>팝오버 아래쪽의 &ldquo;새로 고침&rdquo;을 눌러 주세요. 그래도 보이지 않으면 연결 상태와 케이블을 확인해 주세요.</dd>
+
+    <dt>배치를 바꿨는데 다시 연결하면 원래대로 돌아갑니다.</dt>
+    <dd>배치는 macOS에 영구 설정으로 저장됩니다. 되돌아간다면 해당 디스플레이를 macOS가 다른 기기로 인식했을 수 있으니, 이메일로 알려주시면 확인하겠습니다.</dd>
+
+    <dt>해상도나 주사율도 바꿀 수 있나요?</dt>
+    <dd>현재 버전은 배치(위치)와 주 디스플레이 지정만 다룹니다. 필요하시면 알려주세요.</dd>
+  </dl>
+</section>
+
+</div>
+
+<footer>
+  <div class="wrap">
+    <p>AlignDisplay · macOS 유틸리티<br>문의 <a href="mailto:dltkdi173@gmail.com">dltkdi173@gmail.com</a></p>
+  </div>
+</footer>
+
+</body>
+</html>
