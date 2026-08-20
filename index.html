@@ -1,13 +1,13 @@
 <!doctype html>
-<html lang="ko">
+<html lang="ko" class="lang-ko">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>AlignDisplay — 메뉴 막대에서 바로 디스플레이 정렬</title>
-<meta name="description" content="시스템 설정을 열지 않고 메뉴 막대에서 바로 외장 디스플레이 배치를 바꾸는 macOS 유틸리티.">
+<title>AlignDisplay</title>
+<meta name="description" content="Arrange external displays right from the macOS menu bar. 시스템 설정을 열지 않고 메뉴 막대에서 바로 외장 디스플레이 배치를 바꾸는 macOS 유틸리티.">
 <link rel="icon" href="assets/icon.png">
 <meta property="og:title" content="AlignDisplay">
-<meta property="og:description" content="메뉴 막대에서 바로 외장 디스플레이를 끌어 배치하는 macOS 유틸리티">
+<meta property="og:description" content="Arrange external displays right from the macOS menu bar">
 <meta property="og:image" content="assets/icon-512.png">
 <meta property="og:type" content="website">
 <style>
@@ -44,6 +44,11 @@
     --shadow: 0 4px 24px rgba(0,0,0,.5);
   }
 
+  /* 언어 전환 — 두 언어를 모두 담아 두고 뿌리 클래스로 하나만 보여준다. */
+  [data-lang] { display: none; }
+  html.lang-ko [data-lang="ko"],
+  html.lang-en [data-lang="en"] { display: revert; }
+
   * { box-sizing: border-box; }
   html { -webkit-text-size-adjust: 100%; }
   body {
@@ -64,58 +69,75 @@
   p { margin: 0 0 14px; }
   a { color: var(--accent); }
   img { max-width: 100%; height: auto; }
+  code { font-size: .9em; background: var(--bg-soft); padding: 2px 6px; border-radius: 5px; }
 
-  /* 히어로 */
-  header {
-    text-align: center;
-    padding: 72px 0 56px;
-    background: var(--bg-soft);
+  /* 언어 스위치 */
+  .langbar {
+    position: sticky; top: 0; z-index: 10;
+    display: flex; justify-content: flex-end;
+    padding: 10px 24px;
+    background: color-mix(in srgb, var(--bg) 88%, transparent);
+    backdrop-filter: saturate(180%) blur(12px);
+    -webkit-backdrop-filter: saturate(180%) blur(12px);
+    border-bottom: 1px solid var(--line);
   }
-  header img.appicon {
-    width: 128px; height: 128px;
-    border-radius: 28px;
-    box-shadow: var(--shadow);
-  }
-  header h1 {
-    font-size: clamp(2.2rem, 6vw, 3.2rem);
-    margin: 24px 0 8px;
-  }
-  header .tagline {
-    font-size: clamp(1.05rem, 2.6vw, 1.3rem);
-    color: var(--text-dim);
-    margin: 0 auto 24px;
-    max-width: 30ch;
-  }
-  .meta {
-    display: flex; flex-wrap: wrap; gap: 8px;
-    justify-content: center;
-    font-size: .85rem; color: var(--text-dim);
-  }
-  .meta span {
-    background: var(--card);
+  .langbar div {
+    display: inline-flex;
     border: 1px solid var(--line);
     border-radius: 999px;
-    padding: 4px 14px;
+    overflow: hidden;
+  }
+  .langbar button {
+    font: inherit; font-size: .82rem;
+    padding: 5px 16px;
+    border: 0; background: transparent; color: var(--text-dim);
+    cursor: pointer;
+  }
+  .langbar button[aria-pressed="true"] { background: var(--accent); color: #fff; }
+
+  /* 히어로 */
+  header.hero { text-align: center; padding: 64px 0 56px; background: var(--bg-soft); }
+  header.hero img.appicon { width: 128px; height: 128px; border-radius: 28px; box-shadow: var(--shadow); }
+  header.hero h1 { font-size: clamp(2.2rem, 6vw, 3.2rem); margin: 24px 0 8px; }
+  header.hero .tagline {
+    font-size: clamp(1.05rem, 2.6vw, 1.3rem);
+    color: var(--text-dim); margin: 0 auto 24px; max-width: 34ch;
+  }
+  .meta { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; font-size: .85rem; color: var(--text-dim); }
+  .meta span.badge {
+    background: var(--card); border: 1px solid var(--line);
+    border-radius: 999px; padding: 4px 14px;
   }
 
   /* 기능 */
   .features { display: grid; gap: 22px; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); }
-  .feature {
-    background: var(--card);
-    border: 1px solid var(--line);
-    border-radius: 14px;
-    padding: 20px;
-  }
+  .feature { background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 20px; }
   .feature p { margin: 0; color: var(--text-dim); font-size: .95rem; }
 
   /* 스크린샷 */
-  .shots {
-    display: flex; flex-wrap: wrap; gap: 28px;
-    align-items: flex-start; justify-content: center;
-  }
+  .shots { display: flex; flex-wrap: wrap; gap: 28px; align-items: flex-start; justify-content: center; }
   .shots figure { margin: 0; flex: 1 1 260px; max-width: 340px; text-align: center; }
   .shots img { border-radius: 14px; box-shadow: var(--shadow); border: 1px solid var(--line); }
   .shots figcaption { margin-top: 10px; font-size: .85rem; color: var(--text-dim); }
+
+  /* 다운로드 */
+  .download {
+    background: var(--card); border: 1px solid var(--line);
+    border-radius: 16px; padding: 28px; text-align: center;
+  }
+  .download a.get {
+    display: inline-block; background: var(--accent); color: #fff;
+    text-decoration: none; font-weight: 500; font-size: 1.05rem;
+    padding: 14px 34px; border-radius: 999px; margin: 6px 0 14px;
+  }
+  .download .filemeta { font-size: .85rem; color: var(--text-dim); margin: 0; }
+  .download .hash { font-size: .72rem; color: var(--text-dim); word-break: break-all; margin-top: 10px; }
+  .note {
+    margin-top: 22px; padding: 16px 18px;
+    background: var(--bg-soft); border-radius: 12px;
+    font-size: .9rem; color: var(--text-dim); text-align: left;
+  }
+  .note p:last-child { margin-bottom: 0; }
 
   /* 업데이트 */
   .release { border-left: 2px solid var(--line); padding: 0 0 4px 20px; margin-bottom: 28px; }
@@ -126,38 +148,40 @@
 
   /* 문의 */
   .contact a.mail {
-    display: inline-block;
-    background: var(--accent);
-    color: #fff;
-    text-decoration: none;
-    font-weight: 500;
-    padding: 12px 28px;
-    border-radius: 999px;
+    display: inline-block; background: var(--accent); color: #fff;
+    text-decoration: none; font-weight: 500; padding: 12px 28px; border-radius: 999px;
   }
   dl.faq { margin: 24px 0 0; }
   dl.faq dt { font-weight: 600; margin-top: 18px; }
   dl.faq dd { margin: 4px 0 0; color: var(--text-dim); }
 
   footer {
-    border-top: 1px solid var(--line);
-    padding: 32px 0 48px;
-    text-align: center;
-    color: var(--text-dim);
-    font-size: .85rem;
+    border-top: 1px solid var(--line); padding: 32px 0 48px;
+    text-align: center; color: var(--text-dim); font-size: .85rem;
   }
 </style>
 </head>
 <body>
 
-<header>
+<nav class="langbar">
+  <div>
+    <button type="button" id="btn-ko" aria-pressed="true" onclick="setLang('ko')">한국어</button>
+    <button type="button" id="btn-en" aria-pressed="false" onclick="setLang('en')">English</button>
+  </div>
+</nav>
+
+<header class="hero">
   <div class="wrap">
-    <img class="appicon" src="assets/icon.png" alt="AlignDisplay 앱 아이콘">
+    <img class="appicon" src="assets/icon.png" alt="AlignDisplay">
     <h1>AlignDisplay</h1>
-    <p class="tagline">메뉴 막대에서 바로 외장 디스플레이를 끌어 배치합니다.</p>
+    <p class="tagline" data-lang="ko">메뉴 막대에서 바로 외장 디스플레이를 끌어 배치합니다.</p>
+    <p class="tagline" data-lang="en">Arrange your external displays right from the menu bar.</p>
     <div class="meta">
-      <span>macOS 13.5 이상</span>
-      <span>Apple Silicon &amp; Intel</span>
-      <span>버전 1.2</span>
+      <span class="badge" data-lang="ko">macOS 13.5 이상</span>
+      <span class="badge" data-lang="en">macOS 13.5 or later</span>
+      <span class="badge">Apple Silicon &amp; Intel</span>
+      <span class="badge" data-lang="ko">버전 1.2</span>
+      <span class="badge" data-lang="en">Version 1.2</span>
     </div>
   </div>
 </header>
@@ -165,114 +189,207 @@
 <div class="wrap">
 
 <section>
-  <h2>시스템 설정까지 갈 필요 없이</h2>
-  <p>
+  <h2 data-lang="ko">시스템 설정까지 갈 필요 없이</h2>
+  <h2 data-lang="en">No trip to System Settings</h2>
+  <p data-lang="ko">
     노트북을 모니터에 연결할 때마다 화면 배치가 어긋나 있으면, 시스템 설정 → 디스플레이 → 정렬까지
     네 번을 들어가야 했습니다. AlignDisplay는 그 화면을 메뉴 막대 안으로 옮겨 놓습니다.
     아이콘을 한 번 누르고, 디스플레이를 원하는 자리로 끌면 끝입니다.
   </p>
+  <p data-lang="en">
+    Every time you plug your laptop into a monitor and the arrangement is off, you had to dig through
+    System Settings → Displays → Arrangement. AlignDisplay moves that screen into your menu bar.
+    Click the icon, drag a display where you want it, done.
+  </p>
   <div class="features">
     <div class="feature">
-      <h3>끌어서 배치</h3>
-      <p>디스플레이를 끌어 놓으면 이웃 화면 모서리에 자동으로 달라붙습니다. 겹치거나 떨어진 배치가 만들어지지 않습니다.</p>
+      <h3 data-lang="ko">끌어서 배치</h3>
+      <h3 data-lang="en">Drag to arrange</h3>
+      <p data-lang="ko">디스플레이를 끌어 놓으면 이웃 화면 모서리에 자동으로 달라붙습니다. 겹치거나 떨어진 배치가 만들어지지 않습니다.</p>
+      <p data-lang="en">Drop a display and it snaps to its neighbour's edge. You can't end up with overlapping or drifting screens.</p>
     </div>
     <div class="feature">
-      <h3>빠른 정렬</h3>
-      <p>위 · 아래 · 왼쪽 · 오른쪽 버튼으로 외장 디스플레이를 한 번에 제자리에 놓습니다.</p>
+      <h3 data-lang="ko">빠른 정렬</h3>
+      <h3 data-lang="en">Quick align</h3>
+      <p data-lang="ko">위 · 아래 · 왼쪽 · 오른쪽 버튼으로 외장 디스플레이를 한 번에 제자리에 놓습니다.</p>
+      <p data-lang="en">Up, down, left, right — one button puts the external display exactly where you want it.</p>
     </div>
     <div class="feature">
-      <h3>주 디스플레이 지정</h3>
-      <p>배치 화면에서 마우스 오른쪽 버튼을 누르면 메뉴 막대가 있는 주 디스플레이를 바꿀 수 있습니다.</p>
+      <h3 data-lang="ko">주 디스플레이 지정</h3>
+      <h3 data-lang="en">Set the main display</h3>
+      <p data-lang="ko">배치 화면에서 마우스 오른쪽 버튼을 누르면 메뉴 막대가 있는 주 디스플레이를 바꿀 수 있습니다.</p>
+      <p data-lang="en">Right-click any display on the canvas to move the menu bar to it.</p>
     </div>
     <div class="feature">
-      <h3>연결하면 바로</h3>
-      <p>새 디스플레이를 연결하면 배치 창이 알아서 떠서, 곧바로 정리하고 닫으면 됩니다.</p>
+      <h3 data-lang="ko">연결하면 바로</h3>
+      <h3 data-lang="en">Opens on connect</h3>
+      <p data-lang="ko">새 디스플레이를 연결하면 배치 창이 알아서 떠서, 곧바로 정리하고 닫으면 됩니다.</p>
+      <p data-lang="en">Plug in a new display and the arrangement window appears on its own. Tidy up and close it.</p>
     </div>
     <div class="feature">
-      <h3>로그인 시 실행</h3>
-      <p>체크 한 번으로 로그인 항목에 등록됩니다. Dock을 차지하지 않고 메뉴 막대에만 머무릅니다.</p>
+      <h3 data-lang="ko">로그인 시 실행</h3>
+      <h3 data-lang="en">Launch at login</h3>
+      <p data-lang="ko">체크 한 번으로 로그인 항목에 등록됩니다. Dock을 차지하지 않고 메뉴 막대에만 머무릅니다.</p>
+      <p data-lang="en">One checkbox adds it to your login items. It stays in the menu bar and never takes a Dock slot.</p>
     </div>
     <div class="feature">
-      <h3>영어 · 한국어</h3>
-      <p>macOS 시스템 언어를 따라 한국어 또는 영어로 표시됩니다. 따로 설정할 것이 없습니다.</p>
+      <h3 data-lang="ko">영어 · 한국어</h3>
+      <h3 data-lang="en">English &amp; Korean</h3>
+      <p data-lang="ko">macOS 시스템 언어를 따라 한국어 또는 영어로 표시됩니다. 따로 설정할 것이 없습니다.</p>
+      <p data-lang="en">Follows your macOS system language. Nothing to configure.</p>
     </div>
     <div class="feature">
-      <h3>권한 요구 없음</h3>
-      <p>macOS가 공개한 디스플레이 설정 기능만 사용합니다. 접근성이나 화면 기록 권한을 요구하지 않습니다.</p>
+      <h3 data-lang="ko">권한 요구 없음</h3>
+      <h3 data-lang="en">No permissions needed</h3>
+      <p data-lang="ko">macOS가 공개한 디스플레이 설정 기능만 사용합니다. 접근성이나 화면 기록 권한을 요구하지 않습니다.</p>
+      <p data-lang="en">Uses only public macOS display APIs. Never asks for Accessibility or Screen Recording access.</p>
     </div>
   </div>
 </section>
 
 <section>
-  <h2>스크린샷</h2>
+  <h2 data-lang="ko">내려받기</h2>
+  <h2 data-lang="en">Download</h2>
+  <div class="download">
+    <a class="get" href="downloads/AlignDisplay-1.2.pkg" download>
+      <span data-lang="ko">AlignDisplay 1.2 내려받기 (.pkg)</span>
+      <span data-lang="en">Download AlignDisplay 1.2 (.pkg)</span>
+    </a>
+    <p class="filemeta" data-lang="ko">594KB · 유니버설 (Apple Silicon &amp; Intel) · macOS 13.5 이상 · 빌드 21</p>
+    <p class="filemeta" data-lang="en">594 KB · Universal (Apple Silicon &amp; Intel) · macOS 13.5 or later · build 21</p>
+    <p class="hash">SHA-256: 1c09ab3be02df94a39769100bf8b98bffd090e482324f6d9fd6289eabbc1362e</p>
+
+    <div class="note" data-lang="ko">
+      <p><strong>처음 열 때</strong> — 이 패키지는 Apple 공증(notarization)을 받지 않았습니다. 그냥 두 번 누르면 macOS가 막습니다. <strong>파일을 마우스 오른쪽 버튼으로 클릭 → 열기 → 열기</strong>를 한 번만 해주면 설치됩니다.</p>
+      <p>설치하면 <code>/응용 프로그램</code>에 들어가고, 실행하면 Dock이 아니라 메뉴 막대에 아이콘이 나타납니다.</p>
+      <p>App Store 심사를 신청해 둔 상태입니다. 승인되면 App Store에서 이런 과정 없이 받으실 수 있습니다.</p>
+    </div>
+    <div class="note" data-lang="en">
+      <p><strong>First launch</strong> — this package isn't notarized by Apple, so double-clicking it gets blocked. <strong>Right-click the file → Open → Open</strong> once and it will install.</p>
+      <p>It installs into <code>/Applications</code>. On launch, the icon appears in the menu bar, not the Dock.</p>
+      <p>The app has been submitted to the App Store. Once approved you'll be able to get it there without these steps.</p>
+    </div>
+  </div>
+</section>
+
+<section>
+  <h2 data-lang="ko">스크린샷</h2>
+  <h2 data-lang="en">Screenshots</h2>
   <div class="shots">
     <figure>
-      <img src="assets/screenshot-popover-ko.png" alt="메뉴 막대 팝오버 한국어 화면. 위쪽에 디스플레이 배치 캔버스, 아래에 빠른 정렬 버튼과 설정이 있다.">
-      <figcaption>메뉴 막대에서 열리는 배치 화면</figcaption>
+      <img src="assets/screenshot-popover-ko.png" alt="AlignDisplay popover in Korean">
+      <figcaption data-lang="ko">메뉴 막대에서 열리는 배치 화면</figcaption>
+      <figcaption data-lang="en">The arrangement panel, in Korean</figcaption>
     </figure>
     <figure>
-      <img src="assets/screenshot-popover-en.png" alt="같은 화면의 영어 표시. Quick Align, Launch at login 등으로 표시된다.">
-      <figcaption>시스템 언어에 따라 영어로도 표시됩니다</figcaption>
+      <img src="assets/screenshot-popover-en.png" alt="AlignDisplay popover in English">
+      <figcaption data-lang="ko">시스템 언어에 따라 영어로도 표시됩니다</figcaption>
+      <figcaption data-lang="en">The same panel, in English</figcaption>
     </figure>
     <figure>
-      <img src="assets/screenshot-arrangement.png" alt="두 디스플레이가 위아래로 맞닿아 배치된 캔버스 확대 화면.">
-      <figcaption>끌어서 배치하면 모서리에 자동으로 붙습니다</figcaption>
+      <img src="assets/screenshot-arrangement.png" alt="Two displays snapped edge to edge">
+      <figcaption data-lang="ko">끌어서 배치하면 모서리에 자동으로 붙습니다</figcaption>
+      <figcaption data-lang="en">Drag a display and it snaps into place</figcaption>
     </figure>
   </div>
 </section>
 
 <section>
-  <h2>업데이트 정보</h2>
+  <h2 data-lang="ko">업데이트 정보</h2>
+  <h2 data-lang="en">Release notes</h2>
 
   <div class="release">
-    <h3>버전 1.2 <span class="date">2026년 8월 14일</span></h3>
-    <ul>
+    <h3>
+      <span data-lang="ko">버전 1.2</span><span data-lang="en">Version 1.2</span>
+      <span class="date" data-lang="ko">2026년 8월 20일</span>
+      <span class="date" data-lang="en">20 August 2026</span>
+    </h3>
+    <ul data-lang="ko">
       <li>영어와 한국어를 지원합니다. macOS 시스템 언어에 따라 자동으로 표시됩니다.</li>
       <li>내장 디스플레이 이름도 표시 언어에 맞춰 나옵니다.</li>
       <li>디스플레이를 연결하면 배치 창이 메뉴 막대 아이콘 바로 아래에 열립니다.</li>
-      <li>보조 화면의 메뉴 막대에서 배치를 바꿀 때 마우스 포인터가 튀거나 창이 닫히던 문제를 고쳤습니다.</li>
+      <li>보조 화면에서 배치를 바꿀 때 마우스 포인터가 다른 화면으로 튀던 문제를 고쳤습니다.</li>
+      <li>같은 상황에서 배치 창이 화면 밖으로 밀려나 사라지던 문제를 고쳤습니다.</li>
+    </ul>
+    <ul data-lang="en">
+      <li>English and Korean support, following your macOS system language.</li>
+      <li>The built-in display's name now matches the app's language.</li>
+      <li>Connecting a display opens the arrangement panel right under the menu bar icon.</li>
+      <li>Fixed the pointer jumping to another screen when rearranging from a secondary display.</li>
+      <li>Fixed the arrangement panel drifting off-screen in that same situation.</li>
     </ul>
   </div>
 
   <div class="release">
-    <h3>버전 1.1 <span class="date">2026년 8월 13일</span></h3>
-    <ul>
+    <h3>
+      <span data-lang="ko">버전 1.1</span><span data-lang="en">Version 1.1</span>
+      <span class="date" data-lang="ko">2026년 8월 13일</span>
+      <span class="date" data-lang="en">13 August 2026</span>
+    </h3>
+    <ul data-lang="ko">
       <li>메뉴 막대 안에서 디스플레이를 끌어 배치하는 기능이 추가되었습니다.</li>
       <li>배치를 놓으면 이웃 화면 모서리에 자동으로 정렬됩니다.</li>
       <li>마우스 오른쪽 버튼으로 주 디스플레이를 지정할 수 있습니다.</li>
       <li>디스플레이 연결 시 배치 창이 자동으로 열립니다. 설정에서 끌 수 있습니다.</li>
       <li>팝오버가 화면 위쪽으로 넘쳐 잘려 보이던 문제를 해결했습니다.</li>
     </ul>
+    <ul data-lang="en">
+      <li>Added drag-to-arrange right inside the menu bar panel.</li>
+      <li>Dropped displays snap to their neighbour's edge automatically.</li>
+      <li>Right-click to set the main display.</li>
+      <li>The panel opens automatically when a display is connected. Can be turned off.</li>
+      <li>Fixed the panel overflowing past the top of the screen.</li>
+    </ul>
   </div>
 
   <div class="release">
-    <h3>버전 1.0</h3>
-    <ul>
+    <h3><span data-lang="ko">버전 1.0</span><span data-lang="en">Version 1.0</span></h3>
+    <ul data-lang="ko">
       <li>메뉴 막대 아이콘과 위 · 아래 · 왼쪽 · 오른쪽 빠른 정렬.</li>
       <li>디스플레이 연결 · 해제 감지, 로그인 시 실행.</li>
+    </ul>
+    <ul data-lang="en">
+      <li>Menu bar icon with up / down / left / right quick align.</li>
+      <li>Display connect and disconnect detection, launch at login.</li>
     </ul>
   </div>
 </section>
 
 <section>
-  <h2>개인정보 처리방침</h2>
-  <p>
-    AlignDisplay는 <strong>어떤 개인정보도 수집하지 않습니다.</strong> 사용 기록을 모으거나 외부로
-    전송하지 않으며, 네트워크에 접속하지 않습니다. 앱이 저장하는 정보는 로그인 시 실행 여부와
-    자동 열기 여부 같은 설정값뿐이며, 이는 사용자의 Mac 안에만 저장됩니다.
-  </p>
-  <p>
-    디스플레이 이름과 해상도는 배치를 표시하기 위해 macOS로부터 읽어오지만, 화면에 보여주는 용도로만
-    쓰이고 저장하거나 전송하지 않습니다.
-  </p>
+  <h2 data-lang="ko">개인정보 처리방침</h2>
+  <h2 data-lang="en">Privacy policy</h2>
+  <div data-lang="ko">
+    <p>
+      AlignDisplay는 <strong>어떤 개인정보도 수집하지 않습니다.</strong> 사용 기록을 모으거나 외부로
+      전송하지 않으며, 네트워크에 접속하지 않습니다. 앱이 저장하는 정보는 로그인 시 실행 여부와
+      자동 열기 여부 같은 설정값뿐이며, 이는 사용자의 Mac 안에만 저장됩니다.
+    </p>
+    <p>
+      디스플레이 이름과 해상도는 배치를 표시하기 위해 macOS로부터 읽어오지만, 화면에 보여주는 용도로만
+      쓰이고 저장하거나 전송하지 않습니다.
+    </p>
+  </div>
+  <div data-lang="en">
+    <p>
+      AlignDisplay <strong>collects no personal information.</strong> It gathers no usage data, sends
+      nothing anywhere, and makes no network connections. The only things it stores are your settings —
+      launch at login, open on connect — and those stay on your Mac.
+    </p>
+    <p>
+      Display names and resolutions are read from macOS to draw the arrangement. They are shown on
+      screen only, never stored or transmitted.
+    </p>
+  </div>
 </section>
 
 <section class="contact">
-  <h2>문의</h2>
-  <p>버그 제보, 기능 제안, 그 밖의 문의는 이메일로 보내주세요. 확인하는 대로 답장드립니다.</p>
+  <h2 data-lang="ko">문의</h2>
+  <h2 data-lang="en">Support</h2>
+  <p data-lang="ko">버그 제보, 기능 제안, 그 밖의 문의는 이메일로 보내주세요. 확인하는 대로 답장드립니다.</p>
+  <p data-lang="en">Bug reports, feature requests, anything else — send an email and I'll get back to you.</p>
   <p><a class="mail" href="mailto:dltkdi173@gmail.com">dltkdi173@gmail.com</a></p>
 
-  <dl class="faq">
+  <dl class="faq" data-lang="ko">
     <dt>디스플레이가 목록에 보이지 않아요.</dt>
     <dd>팝오버 아래쪽의 &ldquo;새로 고침&rdquo;을 눌러 주세요. 그래도 보이지 않으면 연결 상태와 케이블을 확인해 주세요.</dd>
 
@@ -281,6 +398,22 @@
 
     <dt>해상도나 주사율도 바꿀 수 있나요?</dt>
     <dd>현재 버전은 배치(위치)와 주 디스플레이 지정만 다룹니다. 필요하시면 알려주세요.</dd>
+
+    <dt>보조 화면에서 배치를 바꾸면 창이 한 번 깜빡입니다.</dt>
+    <dd>macOS가 화면을 재구성하는 동안 창을 잠시 감추기 때문입니다. 창이 닫히거나 위치가 어긋나지는 않습니다.</dd>
+  </dl>
+  <dl class="faq" data-lang="en">
+    <dt>A display isn't showing up.</dt>
+    <dd>Click &ldquo;Refresh&rdquo; at the bottom of the panel. If it still doesn't appear, check the connection and cable.</dd>
+
+    <dt>My arrangement resets when I reconnect.</dt>
+    <dd>Arrangements are saved permanently by macOS. If yours reverts, macOS may be seeing the display as a different device — email me and I'll look into it.</dd>
+
+    <dt>Can it change resolution or refresh rate?</dt>
+    <dd>Not in this version. It handles arrangement (position) and the main display only. Let me know if you need more.</dd>
+
+    <dt>The panel blinks once when I rearrange from a secondary display.</dt>
+    <dd>macOS briefly hides windows while it reconfigures the screens. The panel doesn't close and its position stays correct.</dd>
   </dl>
 </section>
 
@@ -288,9 +421,32 @@
 
 <footer>
   <div class="wrap">
-    <p>AlignDisplay · macOS 유틸리티<br>문의 <a href="mailto:dltkdi173@gmail.com">dltkdi173@gmail.com</a></p>
+    <p data-lang="ko">AlignDisplay · macOS 유틸리티<br>문의 <a href="mailto:dltkdi173@gmail.com">dltkdi173@gmail.com</a></p>
+    <p data-lang="en">AlignDisplay · a macOS utility<br>Contact <a href="mailto:dltkdi173@gmail.com">dltkdi173@gmail.com</a></p>
   </div>
 </footer>
+
+<script>
+  function setLang(lang) {
+    var root = document.documentElement;
+    root.classList.remove('lang-ko', 'lang-en');
+    root.classList.add('lang-' + lang);
+    root.setAttribute('lang', lang);
+    document.getElementById('btn-ko').setAttribute('aria-pressed', String(lang === 'ko'));
+    document.getElementById('btn-en').setAttribute('aria-pressed', String(lang === 'en'));
+    try { localStorage.setItem('alignDisplayLang', lang); } catch (e) {}
+  }
+
+  (function () {
+    var saved = null;
+    try { saved = localStorage.getItem('alignDisplayLang'); } catch (e) {}
+    if (saved !== 'ko' && saved !== 'en') {
+      // 저장된 선택이 없으면 브라우저 언어를 따른다. 앱과 같은 규칙 — 한국어가 아니면 영어.
+      saved = (navigator.language || '').toLowerCase().indexOf('ko') === 0 ? 'ko' : 'en';
+    }
+    setLang(saved);
+  })();
+</script>
 
 </body>
 </html>
