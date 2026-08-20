@@ -120,25 +120,6 @@
   .shots img { border-radius: 14px; box-shadow: var(--shadow); border: 1px solid var(--line); }
   .shots figcaption { margin-top: 10px; font-size: .85rem; color: var(--text-dim); }
 
-  /* 다운로드 */
-  .download {
-    background: var(--card); border: 1px solid var(--line);
-    border-radius: 16px; padding: 28px; text-align: center;
-  }
-  .download a.get {
-    display: inline-block; background: var(--accent); color: #fff;
-    text-decoration: none; font-weight: 500; font-size: 1.05rem;
-    padding: 14px 34px; border-radius: 999px; margin: 6px 0 14px;
-  }
-  .download .filemeta { font-size: .85rem; color: var(--text-dim); margin: 0; }
-  .download .hash { font-size: .72rem; color: var(--text-dim); word-break: break-all; margin-top: 10px; }
-  .note {
-    margin-top: 22px; padding: 16px 18px;
-    background: var(--bg-soft); border-radius: 12px;
-    font-size: .9rem; color: var(--text-dim); text-align: left;
-  }
-  .note p:last-child { margin-bottom: 0; }
-
   /* 업데이트 */
   .release { border-left: 2px solid var(--line); padding: 0 0 4px 20px; margin-bottom: 28px; }
   .release h3 { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; }
@@ -243,31 +224,6 @@
       <h3 data-lang="en">No permissions needed</h3>
       <p data-lang="ko">macOS가 공개한 디스플레이 설정 기능만 사용합니다. 접근성이나 화면 기록 권한을 요구하지 않습니다.</p>
       <p data-lang="en">Uses only public macOS display APIs. Never asks for Accessibility or Screen Recording access.</p>
-    </div>
-  </div>
-</section>
-
-<section>
-  <h2 data-lang="ko">내려받기</h2>
-  <h2 data-lang="en">Download</h2>
-  <div class="download">
-    <a class="get" href="downloads/AlignDisplay-1.2.pkg" download>
-      <span data-lang="ko">AlignDisplay 1.2 내려받기 (.pkg)</span>
-      <span data-lang="en">Download AlignDisplay 1.2 (.pkg)</span>
-    </a>
-    <p class="filemeta" data-lang="ko">594KB · 유니버설 (Apple Silicon &amp; Intel) · macOS 13.5 이상 · 빌드 21</p>
-    <p class="filemeta" data-lang="en">594 KB · Universal (Apple Silicon &amp; Intel) · macOS 13.5 or later · build 21</p>
-    <p class="hash">SHA-256: 1c09ab3be02df94a39769100bf8b98bffd090e482324f6d9fd6289eabbc1362e</p>
-
-    <div class="note" data-lang="ko">
-      <p><strong>처음 열 때</strong> — 이 패키지는 Apple 공증(notarization)을 받지 않았습니다. 그냥 두 번 누르면 macOS가 막습니다. <strong>파일을 마우스 오른쪽 버튼으로 클릭 → 열기 → 열기</strong>를 한 번만 해주면 설치됩니다.</p>
-      <p>설치하면 <code>/응용 프로그램</code>에 들어가고, 실행하면 Dock이 아니라 메뉴 막대에 아이콘이 나타납니다.</p>
-      <p>App Store 심사를 신청해 둔 상태입니다. 승인되면 App Store에서 이런 과정 없이 받으실 수 있습니다.</p>
-    </div>
-    <div class="note" data-lang="en">
-      <p><strong>First launch</strong> — this package isn't notarized by Apple, so double-clicking it gets blocked. <strong>Right-click the file → Open → Open</strong> once and it will install.</p>
-      <p>It installs into <code>/Applications</code>. On launch, the icon appears in the menu bar, not the Dock.</p>
-      <p>The app has been submitted to the App Store. Once approved you'll be able to get it there without these steps.</p>
     </div>
   </div>
 </section>
